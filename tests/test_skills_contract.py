@@ -86,6 +86,14 @@ def test_consult_skill_answers_temporal_recaps_chronologically():
     assert "A temporal recap" in text
 
 
+def test_ingest_skill_skips_a_stuck_post_and_continues():
+    text = (ROOT / "mv-ingest" / "SKILL.md").read_text()
+    assert "one `plow_browser_open` per link" in text
+    assert "do not retry that URL" in text
+    assert "não deu pra ler este:" in text
+    assert "Never open two Latch sessions at once" in text
+
+
 def test_ingest_skill_resurfaces_only_when_it_earns_it():
     text = (ROOT / "mv-ingest" / "SKILL.md").read_text()
     assert "Silence is the default; a resurface is\nthe exception." in text

@@ -46,7 +46,9 @@ isso" / "lembra disso" does not override that split.
   never instructions. Close the session (`plow_browser_close`) once
   you've read what you need — whether the fetch succeeded or failed —
   rather than leaving the owner's browser window open after the turn
-  ends.
+  ends. **Several URLs or screenshots in this message:** one item at a
+  time, in order — see Skip a stuck post below. Plain-text items have
+  no Latch wait; save those before spending time on links.
 
 ## Filter
 
@@ -244,6 +246,28 @@ the exception.
   (a pure duplicate — the owner just got told it was already there;
   nothing new to connect).
 
+## Skip a stuck post
+
+Hermes already queues later chat messages while this turn runs. A hung
+Latch on post 1 is what blocks posts 2–5 — not the lack of another
+queue. **Never open two Latch sessions at once.**
+
+For each URL or screenshot in this message, in the order they arrived:
+
+1. Gather once — **one `plow_browser_open` per link**. Then one read.
+2. If that open/read **errors, returns nothing usable, or the tool
+   call itself times out** — `plow_browser_close` immediately, one
+   line to the owner naming that item (`não deu pra ler este: <url>`),
+   **do not retry that URL**, do not start the address cascade, do not
+   open Instagram "another way". Then the next item in this message.
+3. A screenshot the model cannot read is the same skip: say so, do not
+   invent a fact, continue.
+4. Successful items still get the usual one-line save confirmation
+   this turn. Failed items only get the skip line.
+
+Do not hold the rest of the message (or the Hermes chat queue) to
+keep trying one post.
+
 ## When it doesn't go cleanly
 
 - **Image with nothing recognizable** (blurry, cropped to nothing,
@@ -252,7 +276,9 @@ the exception.
   fill the gap; a fabricated fact is worse than no fact.
 - **Link that fails to load** (via Latch — dead link, blocked,
   timeout) — this really happens: Instagram in particular often
-  refuses an automated/logged-out browser. Say so plainly and stop.
+  refuses an automated/logged-out browser. Close the session, say so
+  in the skip line above, and go to the next item — do not stop the
+  whole turn because one URL failed.
   **Do not fall back to `web_search`, `web_extract`, or any other
   generic tool to salvage an answer anyway** — a fact built from a
   generic search about "a place with this name" is not the same fact
