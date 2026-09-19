@@ -134,12 +134,14 @@ def test_plow_chat_display_is_quiet():
     assert pc["long_running_notifications"] is False
 
 
-def test_platform_toolsets_drop_web_and_browser():
+def test_disabled_toolsets_cover_web_search_and_browser():
     config = yaml.safe_load((ROOT / "runtime" / "config.yaml").read_text())
-    for name, tools in config["platform_toolsets"].items():
-        lowered = {str(item).strip().lower() for item in tools}
-        for banned in ("web", "browser", "search"):
-            assert banned not in lowered, f"{name} still lists {banned}"
+    disabled = {
+        str(item).strip().lower()
+        for item in (config.get("agent") or {}).get("disabled_toolsets") or []
+    }
+    assert {"web", "search", "browser"} <= disabled
+    assert "platform_toolsets" not in config
 
 
 

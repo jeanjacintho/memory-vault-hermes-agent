@@ -4,8 +4,9 @@
 plow-init seeds an absent home from /opt/hermes/plow-seed/config.yaml and
 rewrites seed-owned keys every boot. COPY of runtime/config.yaml into
 /var/lib/hermes is shadowed by the agent-home volume, so holographic
-memory, Latch, group sessions and the toolset-minus-web have to live on
-the seed or a 1-click / recreate boots the generic Plow assistant.
+memory, Latch, group sessions, quiet display, and disabled fetch toolsets
+have to live on the seed or a 1-click / recreate boots the generic Plow
+assistant.
 """
 
 from __future__ import annotations
@@ -44,10 +45,19 @@ def overlay_display(seed: dict, ours: dict) -> dict:
 
 
 def overlay(seed: dict, ours: dict) -> dict:
-    for key in ("_config_version", "group_sessions_per_user", "memory", "platform_toolsets"):
+    for key in ("_config_version", "group_sessions_per_user", "memory"):
         if key in ours:
             seed[key] = ours[key]
     overlay_display(seed, ours)
+    seed_agent = dict(seed.get("agent") or {})
+    ours_agent = dict(ours.get("agent") or {})
+    disabled = list(seed_agent.get("disabled_toolsets") or [])
+    for name in ours_agent.get("disabled_toolsets") or []:
+        if name not in disabled:
+            disabled.append(name)
+    if disabled:
+        seed_agent["disabled_toolsets"] = disabled
+    seed["agent"] = seed_agent
     seed_mcp = dict(seed.get("mcp_servers") or {})
     ours_mcp = dict(ours.get("mcp_servers") or {})
     seed["mcp_servers"] = {**seed_mcp, **ours_mcp}
@@ -94,6 +104,13 @@ def _require(seed: dict) -> None:
         raise SystemExit("refusing: seed plow_chat.tool_progress is not off")
     if pc.get("long_running_notifications") is not False:
         raise SystemExit("refusing: seed plow_chat.long_running_notifications is not false")
+    disabled = {
+        str(item).strip().lower()
+        for item in (seed.get("agent") or {}).get("disabled_toolsets") or []
+    }
+    for banned in ("web", "search", "browser"):
+        if banned not in disabled:
+            raise SystemExit(f"refusing: agent.disabled_toolsets is missing {banned}")
     toolsets = seed.get("platform_toolsets") or {}
     for name, tools in toolsets.items():
         lowered = {str(item).strip().lower() for item in tools or []}

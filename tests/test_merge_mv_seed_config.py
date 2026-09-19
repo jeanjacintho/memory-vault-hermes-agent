@@ -50,7 +50,7 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
             "entries": {"plow-chat-platform": {"allow_tool_override": False}},
             "hermes-memory-store": {"db_path": "${HERMES_HOME}/memory_store.db"},
         },
-        "platform_toolsets": {"plow_chat": ["memory", "skills", "terminal"]},
+        "agent": {"disabled_toolsets": ["web", "search", "browser"]},
         "display": QUIET,
     }
     out = merge.overlay(seed, ours)
@@ -65,6 +65,21 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
     assert out["display"]["busy_ack_enabled"] is False
     assert out["display"]["interim_assistant_messages"] is False
     merge._require(out)
+
+
+def test_overlay_unions_disabled_toolsets_with_the_seed():
+    merge = _load()
+    out = merge.overlay(
+        {"agent": {"disabled_toolsets": ["clarify"], "api_max_retries": 3}},
+        {"agent": {"disabled_toolsets": ["web", "search", "browser"]}},
+    )
+    assert out["agent"]["api_max_retries"] == 3
+    assert out["agent"]["disabled_toolsets"] == [
+        "clarify",
+        "web",
+        "search",
+        "browser",
+    ]
 
 
 def test_overlay_turns_off_loud_plow_chat_defaults():
@@ -89,7 +104,7 @@ def test_require_rejects_web_in_the_toolset():
         "mcp_servers": {"latch": {}},
         "group_sessions_per_user": False,
         "display": QUIET,
-        "platform_toolsets": {"plow_chat": ["memory", "web"]},
+        "agent": {"disabled_toolsets": ["search", "browser"]},
     }
     with pytest.raises(SystemExit, match="web"):
         merge._require(seed)

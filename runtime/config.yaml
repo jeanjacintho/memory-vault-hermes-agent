@@ -76,52 +76,16 @@ display:
       long_running_notifications: false
       busy_ack_detail: false
       live_status: off
-# Structural fix, not a prompt one: a smaller model (google/gemini-2.5-flash-lite)
-# kept reaching for web_extract/browser_exec instead of Latch for a link,
-# even after the persona explicitly forbade it -- prompting alone hit its
-# ceiling (findings.md has two earlier, narrower cases of the same pattern).
-# Removing "web" and "browser" from the allowed toolset removes the choice
-# entirely: nothing but `latch`'s own MCP tools can fetch a page anymore.
-# Every other entry here is the image's own default set, copied so this
-# stays an allowlist-minus-two rather than a hand-maintained one that could
-# silently drift from the image's actual defaults.
+# Structural fix, not a prompt one: a smaller model kept reaching for
+# web_extract/browser_exec instead of Latch. Freezing platform_toolsets as
+# an allowlist also freezes the image's other defaults; disable the three
+# fetch toolsets and let the seed keep the rest.
 #
 # Provider/model are not pinned here or in compose.yml: plow-init writes the
 # Plow-hosted default when HERMES_PROVIDER / HERMES_MODEL are unset, which is
 # the evaluation contract (same omission as life-assistant / The Plow Times).
-platform_toolsets:
-  cli:
-    - clarify
-    - code_execution
-    - computer_use
-    - cronjob
-    - delegation
-    - file
-    - image_gen
-    - kanban
-    - memory
-    - plow_chat
-    - session_search
-    - skills
-    - terminal
-    - todo
-    - tts
-    - vision
-  plow_chat:
-    - clarify
-    - code_execution
-    - computer_use
-    - cronjob
-    - delegation
-    - file
-    - hermes-plow_chat
-    - image_gen
-    - kanban
-    - memory
-    - plow_chat
-    - session_search
-    - skills
-    - terminal
-    - todo
-    - tts
-    - vision
+agent:
+  disabled_toolsets:
+    - web
+    - search
+    - browser
