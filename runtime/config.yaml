@@ -12,6 +12,25 @@
 # all (model never sticks), just with a different log line
 # ("Migrating config schema 37 -> 39" instead of "predates version 12").
 # Declaring the file already-current skips that step entirely.
+# Default model is Claude Sonnet 5 on the Plow provider — the same
+# OpenAI-compat path this agent already authenticates with, and the id
+# the base image pins in plow-seed. plow-init rewrites model.default to
+# the current hosted catalog (Times live: z-ai/glm-5.2; previously Kimi)
+# when HERMES_PROVIDER / HERMES_MODEL are unset. Do not pin those env
+# vars in compose.yml.
+model:
+  default: anthropic/claude-sonnet-5
+  provider: plow
+  base_url: "${PLOW_API_BASE}/v1"
+  key_env: HERMES_CUSTOM_PLOW_API_KEY
+providers:
+  plow:
+    name: plow
+    base_url: "${PLOW_API_BASE}/v1"
+    key_env: HERMES_CUSTOM_PLOW_API_KEY
+    stale_timeout_seconds: 55
+    models:
+      anthropic/claude-sonnet-5: {}
 _config_version: 39
 # Hermes truncates context files (SOUL.md) at 20 000 chars unless raised.
 # The merge stamps this onto plow-seed; home COPY is shadowed by agent-home.
@@ -84,9 +103,9 @@ display:
 # an allowlist also freezes the image's other defaults; disable the three
 # fetch toolsets and let the seed keep the rest.
 #
-# Provider/model are not pinned here or in compose.yml: plow-init writes the
-# Plow-hosted default when HERMES_PROVIDER / HERMES_MODEL are unset, which is
-# the evaluation contract (same omission as life-assistant / The Plow Times).
+# Provider/model live in the block at the top of this file (Sonnet in git;
+# plow-init supplies the hosted default on boot). They are not pinned in
+# compose.yml.
 agent:
   disabled_toolsets:
     - web

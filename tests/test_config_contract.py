@@ -124,6 +124,13 @@ def test_saved_content_memory_provider_is_active():
     assert config["memory"]["provider"] == "holographic"
 
 
+def test_model_is_plow_sonnet_in_git():
+    config = yaml.safe_load((ROOT / "runtime" / "config.yaml").read_text())
+    assert config["model"]["provider"] == "plow"
+    assert config["model"]["default"] == "anthropic/claude-sonnet-5"
+    assert "anthropic/claude-sonnet-5" in (config.get("providers") or {}).get("plow", {}).get("models", {})
+
+
 def test_plow_chat_display_is_quiet():
     config = yaml.safe_load((ROOT / "runtime" / "config.yaml").read_text())
     disp = config["display"]
