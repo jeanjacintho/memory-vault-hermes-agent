@@ -59,6 +59,23 @@ plugins:
 platforms:
   plow_chat:
     enabled: true
+# plow-init writes seed display whole on every boot. Hermes defaults
+# plow_chat to interim messages and tool progress on; measured on the
+# sibling paper, every Latch step landed in the owner's DM. Skills
+# telling the model to stay quiet are not a gate — these keys are.
+display:
+  tool_progress: off
+  interim_assistant_messages: false
+  long_running_notifications: false
+  busy_ack_detail: false
+  live_status: off
+  platforms:
+    plow_chat:
+      tool_progress: off
+      interim_assistant_messages: false
+      long_running_notifications: false
+      busy_ack_detail: false
+      live_status: off
 # Structural fix, not a prompt one: a smaller model (google/gemini-2.5-flash-lite)
 # kept reaching for web_extract/browser_exec instead of Latch for a link,
 # even after the persona explicitly forbade it -- prompting alone hit its

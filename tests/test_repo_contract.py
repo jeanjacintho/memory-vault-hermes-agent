@@ -88,6 +88,7 @@ def test_dockerfile_copies_every_mv_skill_outside_the_home():
     assert "COPY runtime/config.yaml /var/lib/hermes/config.yaml" in dockerfile
     assert "merge_mv_seed_config.py" in dockerfile
     assert "02-copy-plow-credentials" in dockerfile
+    assert "interim_assistant_messages: false" in dockerfile
     assert "base-ef0019372ff8bca593611b31ebd2e08f9f1458ff" in dockerfile
     assert "image/s6-overlay" not in dockerfile
     assert "plow-credentials" in (ROOT / ".dockerignore").read_text()

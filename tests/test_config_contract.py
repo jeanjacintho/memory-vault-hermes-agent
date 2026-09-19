@@ -124,6 +124,16 @@ def test_saved_content_memory_provider_is_active():
     assert config["memory"]["provider"] == "holographic"
 
 
+def test_plow_chat_display_is_quiet():
+    config = yaml.safe_load((ROOT / "runtime" / "config.yaml").read_text())
+    disp = config["display"]
+    pc = disp["platforms"]["plow_chat"]
+    assert disp["interim_assistant_messages"] is False
+    assert disp["long_running_notifications"] is False
+    assert pc["interim_assistant_messages"] is False
+    assert pc["long_running_notifications"] is False
+
+
 def test_platform_toolsets_drop_web_and_browser():
     config = yaml.safe_load((ROOT / "runtime" / "config.yaml").read_text())
     for name, tools in config["platform_toolsets"].items():

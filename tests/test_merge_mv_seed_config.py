@@ -7,6 +7,23 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
+QUIET = {
+    "tool_progress": "off",
+    "interim_assistant_messages": False,
+    "long_running_notifications": False,
+    "busy_ack_detail": False,
+    "live_status": "off",
+    "platforms": {
+        "plow_chat": {
+            "tool_progress": "off",
+            "interim_assistant_messages": False,
+            "long_running_notifications": False,
+            "busy_ack_detail": False,
+            "live_status": "off",
+        }
+    },
+}
+
 
 def _load():
     path = ROOT / "image/merge_mv_seed_config.py"
@@ -34,6 +51,7 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
             "hermes-memory-store": {"db_path": "${HERMES_HOME}/memory_store.db"},
         },
         "platform_toolsets": {"plow_chat": ["memory", "skills", "terminal"]},
+        "display": QUIET,
     }
     out = merge.overlay(seed, ours)
     assert out["mcp_servers"]["plow"]["url"] == "stdio"
@@ -45,7 +63,23 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
     assert "other" in out["plugins"]["enabled"]
     assert out["plugins"]["hermes-memory-store"]["db_path"] == "${HERMES_HOME}/memory_store.db"
     assert out["display"]["busy_ack_enabled"] is False
+    assert out["display"]["interim_assistant_messages"] is False
     merge._require(out)
+
+
+def test_overlay_turns_off_loud_plow_chat_defaults():
+    merge = _load()
+    out = merge.overlay_display(
+        {"display": {"memory_notifications": "on", "interim_assistant_messages": True}},
+        {"display": QUIET},
+    )
+    disp = out["display"]
+    pc = disp["platforms"]["plow_chat"]
+    assert disp["memory_notifications"] == "on"
+    assert disp["interim_assistant_messages"] is False
+    assert disp["tool_progress"] == "off"
+    assert pc["interim_assistant_messages"] is False
+    assert pc["tool_progress"] == "off"
 
 
 def test_require_rejects_web_in_the_toolset():
@@ -54,6 +88,7 @@ def test_require_rejects_web_in_the_toolset():
         "memory": {"provider": "holographic"},
         "mcp_servers": {"latch": {}},
         "group_sessions_per_user": False,
+        "display": QUIET,
         "platform_toolsets": {"plow_chat": ["memory", "web"]},
     }
     with pytest.raises(SystemExit, match="web"):
