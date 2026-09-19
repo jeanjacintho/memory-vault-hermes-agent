@@ -24,7 +24,8 @@ RUN /opt/hermes/.venv/bin/python3 /opt/plow/merge_mv_seed_config.py \
  && grep -q 'latch:' /opt/hermes/plow-seed/config.yaml \
  && grep -q 'group_sessions_per_user: false' /opt/hermes/plow-seed/config.yaml \
  && grep -q 'interim_assistant_messages: false' /opt/hermes/plow-seed/config.yaml \
- && grep -q 'disabled_toolsets:' /opt/hermes/plow-seed/config.yaml
+ && grep -q 'disabled_toolsets:' /opt/hermes/plow-seed/config.yaml \
+ && grep -q 'context_file_max_chars: 40000' /opt/hermes/plow-seed/config.yaml
 
 # Identity and skills. Home COPY is the first-boot volume fill; first boot
 # re-asserts root ownership, which is what the trailing chmod answers.

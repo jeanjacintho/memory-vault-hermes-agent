@@ -45,7 +45,7 @@ def overlay_display(seed: dict, ours: dict) -> dict:
 
 
 def overlay(seed: dict, ours: dict) -> dict:
-    for key in ("_config_version", "group_sessions_per_user", "memory"):
+    for key in ("_config_version", "group_sessions_per_user", "memory", "context_file_max_chars"):
         if key in ours:
             seed[key] = ours[key]
     overlay_display(seed, ours)
@@ -90,6 +90,8 @@ def _require(seed: dict) -> None:
         raise SystemExit("refusing: seed mcp_servers is missing latch")
     if seed.get("group_sessions_per_user") is not False:
         raise SystemExit("refusing: seed group_sessions_per_user is not false")
+    if seed.get("context_file_max_chars") != 40000:
+        raise SystemExit("refusing: seed context_file_max_chars is not 40000")
     disp = seed.get("display") or {}
     pc = (disp.get("platforms") or {}).get("plow_chat") or {}
     if disp.get("interim_assistant_messages") is not False:

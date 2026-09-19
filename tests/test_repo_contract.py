@@ -1,4 +1,5 @@
 from pathlib import Path
+import importlib.util
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -12,6 +13,17 @@ SKILLS = (
 
 def deploy_hook():
     return (ROOT / "deploy-hook").read_text()
+
+
+def test_soul_fits_hermes_context_file_limit():
+    spec = importlib.util.spec_from_file_location(
+        "soul_fits_context", ROOT / "checks" / "soul_fits_context.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    n, limit = module.check(ROOT)
+    assert n <= limit
+    assert limit == 40000
 
 
 def test_deploy_hook_seeds_every_skill():
@@ -90,6 +102,7 @@ def test_dockerfile_copies_every_mv_skill_outside_the_home():
     assert "02-copy-plow-credentials" in dockerfile
     assert "interim_assistant_messages: false" in dockerfile
     assert "disabled_toolsets:" in dockerfile
+    assert "context_file_max_chars: 40000" in dockerfile
     assert "base-ef0019372ff8bca593611b31ebd2e08f9f1458ff" in dockerfile
     assert "image/s6-overlay" not in dockerfile
     assert "plow-credentials" in (ROOT / ".dockerignore").read_text()

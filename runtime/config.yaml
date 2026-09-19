@@ -13,6 +13,9 @@
 # ("Migrating config schema 37 -> 39" instead of "predates version 12").
 # Declaring the file already-current skips that step entirely.
 _config_version: 39
+# Hermes truncates context files (SOUL.md) at 20 000 chars unless raised.
+# The merge stamps this onto plow-seed; home COPY is shadowed by agent-home.
+context_file_max_chars: 40000
 # One session per group chat, shared by every participant. Present despite the
 # "absent keys mean image defaults" rule above: the image default (true) splits
 # a group thread into per-sender sessions, and the plow-chat plugin's

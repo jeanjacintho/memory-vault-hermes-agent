@@ -43,6 +43,7 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
     ours = {
         "_config_version": 39,
         "group_sessions_per_user": False,
+        "context_file_max_chars": 40000,
         "memory": {"provider": "holographic"},
         "mcp_servers": {"latch": {"url": "https://api.plow.co/v1/relay/devices/${DOMO_DEVICE_UID}/mcp"}},
         "plugins": {
@@ -103,6 +104,7 @@ def test_require_rejects_web_in_the_toolset():
         "memory": {"provider": "holographic"},
         "mcp_servers": {"latch": {}},
         "group_sessions_per_user": False,
+        "context_file_max_chars": 40000,
         "display": QUIET,
         "agent": {"disabled_toolsets": ["search", "browser"]},
     }
