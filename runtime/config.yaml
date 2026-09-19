@@ -14,10 +14,10 @@
 # Declaring the file already-current skips that step entirely.
 # Default model is Claude Sonnet 5 on the Plow provider — the same
 # OpenAI-compat path this agent already authenticates with, and the id
-# the base image pins in plow-seed. plow-init rewrites model.default to
-# the current hosted catalog (Times live: z-ai/glm-5.2; previously Kimi)
-# when HERMES_PROVIDER / HERMES_MODEL are unset. Do not pin those env
-# vars in compose.yml.
+# the base image pins in plow-seed. plow-init may rewrite model.default
+# to the current hosted catalog when HERMES_PROVIDER / HERMES_MODEL are
+# unset. Do not pin those env vars in compose.yml. The live home is
+# Kimi on Plow (moonshotai/kimi-k2.5); git keeps Sonnet like Times.
 model:
   default: anthropic/claude-sonnet-5
   provider: plow
