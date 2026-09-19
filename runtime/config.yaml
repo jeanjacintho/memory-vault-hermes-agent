@@ -12,12 +12,10 @@
 # all (model never sticks), just with a different log line
 # ("Migrating config schema 37 -> 39" instead of "predates version 12").
 # Declaring the file already-current skips that step entirely.
-# Default model is Claude Sonnet 5 on the Plow provider — the same
-# OpenAI-compat path this agent already authenticates with, and the id
-# the base image pins in plow-seed. plow-init may rewrite model.default
-# to the current hosted catalog when HERMES_PROVIDER / HERMES_MODEL are
-# unset. Do not pin those env vars in compose.yml. The live home is
-# Kimi on Plow (moonshotai/kimi-k2.5); git keeps Sonnet like Times.
+# Default model is Claude Sonnet 5 on the Plow provider. The fleet seed
+# on this base is glm-5.2; plow-init recopies seed model.default every
+# boot, so merge_mv_seed_config.py stamps this block onto plow-seed.
+# Do not pin HERMES_PROVIDER / HERMES_MODEL in compose.yml.
 model:
   default: anthropic/claude-sonnet-5
   provider: plow
@@ -103,9 +101,8 @@ display:
 # an allowlist also freezes the image's other defaults; disable the three
 # fetch toolsets and let the seed keep the rest.
 #
-# Provider/model live in the block at the top of this file (Sonnet in git;
-# plow-init supplies the hosted default on boot). They are not pinned in
-# compose.yml.
+# Provider/model are Sonnet 5 on Plow, stamped onto plow-seed (not only
+# this file). They are not pinned in compose.yml.
 agent:
   disabled_toolsets:
     - web

@@ -6,7 +6,7 @@ rewrites seed-owned keys every boot. COPY of runtime/config.yaml into
 /var/lib/hermes is shadowed by the agent-home volume, so holographic
 memory, Latch, group sessions, quiet display, and disabled fetch toolsets
 have to live on the seed or a 1-click / recreate boots the generic Plow
-assistant.
+assistant (glm-5.2 on this base). Sonnet 5 has to be stamped onto the seed.
 """
 
 from __future__ import annotations
@@ -44,11 +44,32 @@ def overlay_display(seed: dict, ours: dict) -> dict:
     return seed
 
 
+def overlay_model(seed: dict, ours: dict) -> dict:
+    """Fleet seed default is glm-5.2; the vault stays on Sonnet 5."""
+    seed_model = dict(seed.get("model") or {})
+    ours_model = dict(ours.get("model") or {})
+    if ours_model:
+        seed["model"] = {**seed_model, **ours_model}
+    seed_provs = dict(seed.get("providers") or {})
+    ours_provs = dict(ours.get("providers") or {})
+    if not ours_provs:
+        return seed
+    seed_plow = dict(seed_provs.get("plow") or {})
+    ours_plow = dict(ours_provs.get("plow") or {})
+    seed_models = dict(seed_plow.get("models") or {})
+    ours_models = dict(ours_plow.get("models") or {})
+    merged_plow = {**seed_plow, **ours_plow}
+    merged_plow["models"] = {**seed_models, **ours_models}
+    seed["providers"] = {**seed_provs, **ours_provs, "plow": merged_plow}
+    return seed
+
+
 def overlay(seed: dict, ours: dict) -> dict:
     for key in ("_config_version", "group_sessions_per_user", "memory", "context_file_max_chars"):
         if key in ours:
             seed[key] = ours[key]
     overlay_display(seed, ours)
+    overlay_model(seed, ours)
     seed_agent = dict(seed.get("agent") or {})
     ours_agent = dict(ours.get("agent") or {})
     disabled = list(seed_agent.get("disabled_toolsets") or [])
@@ -92,6 +113,10 @@ def _require(seed: dict) -> None:
         raise SystemExit("refusing: seed group_sessions_per_user is not false")
     if seed.get("context_file_max_chars") != 40000:
         raise SystemExit("refusing: seed context_file_max_chars is not 40000")
+    if (seed.get("model") or {}).get("default") != "anthropic/claude-sonnet-5":
+        raise SystemExit("refusing: seed model.default is not anthropic/claude-sonnet-5")
+    if (seed.get("model") or {}).get("provider") != "plow":
+        raise SystemExit("refusing: seed model.provider is not plow")
     disp = seed.get("display") or {}
     pc = (disp.get("platforms") or {}).get("plow_chat") or {}
     if disp.get("interim_assistant_messages") is not False:

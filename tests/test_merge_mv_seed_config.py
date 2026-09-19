@@ -53,6 +53,10 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
         },
         "agent": {"disabled_toolsets": ["web", "search", "browser"]},
         "display": QUIET,
+        "model": {"default": "anthropic/claude-sonnet-5", "provider": "plow"},
+        "providers": {
+            "plow": {"models": {"anthropic/claude-sonnet-5": {}}},
+        },
     }
     out = merge.overlay(seed, ours)
     assert out["mcp_servers"]["plow"]["url"] == "stdio"
@@ -65,7 +69,34 @@ def test_overlay_keeps_relay_and_stamps_vault_gates():
     assert out["plugins"]["hermes-memory-store"]["db_path"] == "${HERMES_HOME}/memory_store.db"
     assert out["display"]["busy_ack_enabled"] is False
     assert out["display"]["interim_assistant_messages"] is False
+    assert out["model"]["default"] == "anthropic/claude-sonnet-5"
     merge._require(out)
+
+
+def test_overlay_model_replaces_fleet_glm_default_with_sonnet():
+    merge = _load()
+    seed = {
+        "model": {"default": "z-ai/glm-5.2", "provider": "plow"},
+        "providers": {
+            "plow": {
+                "models": {
+                    "z-ai/glm-5.2": {},
+                    "anthropic/claude-sonnet-5": {},
+                }
+            }
+        },
+    }
+    ours = {
+        "model": {"default": "anthropic/claude-sonnet-5", "provider": "plow"},
+        "providers": {
+            "plow": {"models": {"anthropic/claude-sonnet-5": {}}},
+        },
+    }
+    out = merge.overlay_model(seed, ours)
+    assert out["model"]["default"] == "anthropic/claude-sonnet-5"
+    assert out["model"]["provider"] == "plow"
+    assert "anthropic/claude-sonnet-5" in out["providers"]["plow"]["models"]
+    assert out["model"]["default"] != "z-ai/glm-5.2"
 
 
 def test_overlay_unions_disabled_toolsets_with_the_seed():
@@ -106,6 +137,7 @@ def test_require_rejects_web_in_the_toolset():
         "group_sessions_per_user": False,
         "context_file_max_chars": 40000,
         "display": QUIET,
+        "model": {"default": "anthropic/claude-sonnet-5", "provider": "plow"},
         "agent": {"disabled_toolsets": ["search", "browser"]},
     }
     with pytest.raises(SystemExit, match="web"):

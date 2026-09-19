@@ -104,6 +104,7 @@ def test_dockerfile_copies_every_mv_skill_outside_the_home():
     assert "disabled_toolsets:" in dockerfile
     assert "context_file_max_chars: 40000" in dockerfile
     assert "anthropic/claude-sonnet-5" in dockerfile
+    assert "default: anthropic/claude-sonnet-5" in dockerfile
     assert "moonshotai/kimi-k2.5" not in dockerfile
     assert "base-ef0019372ff8bca593611b31ebd2e08f9f1458ff" in dockerfile
     assert "image/s6-overlay" not in dockerfile
