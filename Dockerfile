@@ -1,5 +1,5 @@
 # Memory Vault's own image: the fleet's pinned base, this agent's persona
-# and skills. The Agent Index reporter is the base's own.
+# and skills. The agent-index usage reporter is the base's own.
 #
 # Pinned by digest, exactly like the fleet's own runtime/stack.json and the
 # sibling agents' Dockerfiles: a mutable tag would re-resolve on every pull
@@ -40,11 +40,7 @@ COPY mv-learn/  /opt/hermes/skills/mv-learn/
 RUN find /opt/hermes/skills -mindepth 1 -type d -exec chmod 0755 {} + \
  && find /opt/hermes/skills -mindepth 1 -type f ! -perm -u+x -exec chmod 0644 {} + \
  && find /opt/hermes/skills -mindepth 1 -type f -perm -u+x -exec chmod 0755 {} + \
- && chmod 0644 /var/lib/hermes/SOUL.md /var/lib/hermes/config.yaml \
-      /opt/hermes/plow-seed/SOUL.md
-
-COPY image/cont-init.d/02-copy-plow-credentials /etc/cont-init.d/02-copy-plow-credentials
-RUN chmod 0755 /etc/cont-init.d/02-copy-plow-credentials
+ && chmod 0644 /var/lib/hermes/SOUL.md /var/lib/hermes/config.yaml
 
 # Hermes' billing wall concatenates the HTTP body, the provider name, a
 # billing URL and `/model`. Pin one user-facing line and fail the build if
