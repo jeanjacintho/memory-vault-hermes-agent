@@ -106,7 +106,7 @@ def test_dockerfile_copies_every_mv_skill_outside_the_home():
     assert "anthropic/claude-sonnet-5" in dockerfile
     assert "default: anthropic/claude-sonnet-5" in dockerfile
     assert "moonshotai/kimi-k2.5" not in dockerfile
-    assert "base-ef0019372ff8bca593611b31ebd2e08f9f1458ff" in dockerfile
+    assert "base-67021a7029e33e80bcb27899be6515a5a0e9b37b" in dockerfile
     assert "image/s6-overlay" not in dockerfile
     assert "plow-credentials" in (ROOT / ".dockerignore").read_text()
     assert "plow-credentials" in (ROOT / ".gitignore").read_text()
